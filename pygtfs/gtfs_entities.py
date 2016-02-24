@@ -12,7 +12,7 @@ from __future__ import division, absolute_import, print_function, unicode_litera
 import datetime
 import re
 
-import pytz
+# import pytz
 from sqlalchemy import Column, ForeignKey, ForeignKeyConstraint, Index, and_
 from sqlalchemy.types import Unicode, Integer, Float, Boolean, Date, Interval, PickleType, TypeDecorator, Numeric
 from sqlalchemy.ext.declarative import declarative_base
@@ -98,6 +98,7 @@ class Feed(Base):
     id = synonym('feed_id')
     feed_name = Column(Unicode)
     feed_append_date = Column(Date, nullable=True)
+    sign_id = Column(Integer)
 
 
     # these relationships will allow us to delete entire feeds at once
@@ -156,6 +157,11 @@ class Stop(Base):
     stop_timezone = Column(Unicode, nullable=True)
     wheelchair_boarding = Column(Integer, nullable=True)
     platform_code = Column(Unicode, nullable=True)
+    on_street = Column(Unicode, nullable=True)
+    at_street = Column(Unicode, nullable=True)
+    heading = Column(Unicode, nullable=True)
+    stop_position = Column(Unicode, nullable=True)
+    corner_placement = Column(Unicode, nullable=True)
 
     stop_times = relationship('StopTime', backref="stop")
     transfers_to = relationship('Transfer', backref="stop_to", foreign_keys='Transfer.to_stop_id')
@@ -209,7 +215,9 @@ class Trip(Base):
     block_id = Column(Unicode, nullable=True)
     shape_id = Column(Unicode, nullable=True)
     wheelchair_accessible = Column(Integer, nullable=True)
-    bikes_allowed = Column(Integer, nullable=True)
+    bikes_allowed = Column(Unicode, nullable=True)
+    dir_abbr = Column(Unicode, nullable=True)
+    orig_trip_id = Column(Unicode)
 
     stop_times = relationship("StopTime", backref="trip")
     frequencies = relationship("Frequency", backref="trip")
@@ -220,10 +228,10 @@ class Trip(Base):
 
     _validate_direction_id = _validate_int_choice([None,0,1], 'direction_id')
     _validate_wheelchair = _validate_int_choice([0,1,2], 'wheelchair_accessible')
-    _validate_bikes = _validate_int_choice([0,1,2], 'bikes_allowed')
 
     def __repr__(self):
         return '<Trip %s>' % self.trip_id
+
 
 class StopTime(Base):
     __tablename__ = 'stop_times'
@@ -238,6 +246,7 @@ class StopTime(Base):
     pickup_type = Column(Integer)
     drop_off_type = Column(Integer)
     shape_dist_traveled = Column(Integer, nullable=True)
+    atl_stop_id = Column(Integer, nullable=True)
 
     __table_args__ = create_foreign_keys('trips.trip_id', 'stops.stop_id')
 
@@ -263,6 +272,7 @@ class Service(Base):
     sunday = Column(Boolean)
     start_date = Column(Date)
     end_date = Column(Date)
+    service_name = Column(Unicode, nullable=True)
 
     trips = relationship('Trip',
         backref='service',
@@ -357,7 +367,7 @@ class ShapePoint(Base):
     shape_id = Column(Unicode, primary_key=True)
     shape_pt_lat = Column(Float)
     shape_pt_lon = Column(Float)
-    shape_pt_sequence = Column(Integer)
+    shape_pt_sequence = Column(Integer, primary_key=True)
     shape_dist_traveled = Column(Float, nullable=True)
 
     trips = relationship("Trip", backref="shape_points")
@@ -423,6 +433,7 @@ class FeedInfo(Base):
     feed_start_date = Column(Date, nullable=True)
     feed_end_date = Column(Date, nullable=True)
     feed_version = Column(Unicode, nullable=True)
+    sign_id = Column(Integer)
 
     _validate_start_end = _validate_date('feed_start_date', 'feed_end_date')
 
@@ -432,7 +443,7 @@ class FeedInfo(Base):
 
 # a feed can skip Service (calendar) if it has ServiceException (calendar_dates)
 
-gtfs_required = [Agency, Stop, Route, Trip, StopTime]
+gtfs_required = [Agency, Stop, Route, Trip, StopTime, ShapePoint]
 gtfs_calendar = [Service, ServiceException]
-gtfs_not_required = [Fare, FareRule, ShapePoint, Frequency, Transfer, FeedInfo]
+gtfs_not_required = [Fare, FareRule, Frequency, Transfer, FeedInfo]
 gtfs_all = gtfs_required + gtfs_calendar + gtfs_not_required
