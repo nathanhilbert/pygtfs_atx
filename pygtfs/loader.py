@@ -68,12 +68,18 @@ def append_feed(schedule, feed_filename, strip_fields=True,
         if gtfs_class not in gtfs_tables:
             continue
         gtfs_table = gtfs_tables[gtfs_class]
+        instance_columns = vars(gtfs_class).keys()
         for i, record in enumerate(gtfs_table):
             if not record:
                 # Empty row.
                 continue
             try:
-                instance = gtfs_class(feed_id = feed_id, **record._asdict())
+                recordasdict = record._asdict()
+                for k in recordasdict.keys():
+                    if k not in instance_columns:
+                        del recordasdict[k]
+
+                instance = gtfs_class(feed_id = feed_id, **recordasdict)
             except:
                 print("Failure while writing {0}".format(record))
                 raise

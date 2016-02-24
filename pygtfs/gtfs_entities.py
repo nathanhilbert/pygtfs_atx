@@ -375,7 +375,7 @@ class ShapePoint(Base):
     shape_dist_traveled = Column(Float, nullable=True)
 
     trips = relationship("Trip", backref="shape_points", primaryjoin="and_(ShapePoint.feed_id==Trip.feed_id, "
-                        "ShapePoint.shape_id==foreign(Trip.shape_id))", viewonly=True)
+                        "ShapePoint.shape_id==foreign(Trip.shape_id))")
 
     __table_args__ = (
         PrimaryKeyConstraint('feed_id', 'shape_id', 'shape_pt_sequence', name="pk_id_seq"),
