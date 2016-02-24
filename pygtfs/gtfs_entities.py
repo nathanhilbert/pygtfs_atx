@@ -125,7 +125,7 @@ class Agency(Base):
     __tablename__ = 'agency'
     _plural_name_ = 'agencies'
     feed_id = Column(Integer, ForeignKey('_feed.feed_id'), primary_key=True)
-    agency_id = Column(Unicode, primary_key=True, default=u"None", index=True)
+    agency_id = Column(Unicode(length=250), primary_key=True, default=u"None", index=True)
     id = synonym('agency_id')
     agency_name = Column(Unicode)
     agency_url = Column(Unicode)
@@ -144,9 +144,9 @@ class Stop(Base):
     __tablename__ = 'stops'
     _plural_name_ = 'stops'
     feed_id = Column(Integer, ForeignKey('_feed.feed_id'), primary_key=True)
-    stop_id = Column(Unicode, primary_key=True, index=True)
+    stop_id = Column(Unicode(length=250), primary_key=True, index=True)
     id = synonym('stop_id')
-    stop_code = Column(Unicode, nullable=True, index=True)
+    stop_code = Column(Unicode(length=250), nullable=True, index=True)
     stop_name = Column(Unicode)
     stop_desc = Column(Unicode, nullable=True)
     stop_lat = Column(Float)
@@ -183,9 +183,9 @@ class Route(Base):
     __tablename__ = 'routes'
     _plural_name_ = 'routes'
     feed_id = Column(Integer, ForeignKey('_feed.feed_id'), primary_key=True)
-    route_id = Column(Unicode, primary_key=True, index=True)
+    route_id = Column(Unicode(length=250), primary_key=True, index=True)
     id = synonym('route_id')
-    agency_id = Column(Unicode, default=u"None")
+    agency_id = Column(Unicode(length=250), default=u"None")
     route_short_name = Column(Unicode)
     route_long_name = Column(Unicode)
     route_desc = Column(Unicode, nullable=True)
@@ -211,15 +211,15 @@ class Trip(Base):
     __tablename__ = 'trips'
     _plural_name_ = 'trips'
     feed_id = Column(Integer, ForeignKey('_feed.feed_id'), primary_key=True)
-    route_id = Column(Unicode)
-    service_id = Column(Unicode)
-    trip_id = Column(Unicode, primary_key=True, index=True)
+    route_id = Column(Unicode(length=250))
+    service_id = Column(Unicode(length=250))
+    trip_id = Column(Unicode(length=250), primary_key=True, index=True)
     id = synonym('trip_id')
     trip_headsign = Column(Unicode, nullable=True)
     trip_short_name = Column(Unicode, nullable=True)
     direction_id = Column(Integer, nullable=True)
     block_id = Column(Unicode, nullable=True)
-    shape_id = Column(Unicode, nullable=True)
+    shape_id = Column(Unicode(length=250), nullable=True)
     wheelchair_accessible = Column(Integer, nullable=True)
     bikes_allowed = Column(Unicode, nullable=True)
     dir_abbr = Column(Unicode, nullable=True)
@@ -249,10 +249,10 @@ class StopTime(Base):
     __tablename__ = 'stop_times'
     _plural_name_ = 'stop_times'
     feed_id = Column(Integer, ForeignKey('_feed.feed_id'), primary_key=True)
-    trip_id = Column(Unicode, primary_key=True)
+    trip_id = Column(Unicode(length=250), primary_key=True)
     arrival_time = Column(Interval)
     departure_time = Column(Interval)
-    stop_id = Column(Unicode, primary_key=True)
+    stop_id = Column(Unicode(length=250), primary_key=True)
     stop_sequence = Column(Integer, primary_key=True)
     stop_headsign = Column(Unicode)
     pickup_type = Column(Integer)
@@ -273,7 +273,7 @@ class Service(Base):
     __tablename__ = 'calendar'
     _plural_name_ = 'services'
     feed_id = Column(Integer, ForeignKey('_feed.feed_id'), primary_key=True)
-    service_id = Column(Unicode, primary_key=True, index=True)
+    service_id = Column(Unicode(length=250), primary_key=True, index=True)
     id = synonym('service_id')
     monday = Column(Boolean)
     tuesday = Column(Boolean)
@@ -315,7 +315,7 @@ class ServiceException(Base):
     __tablename__ = 'calendar_dates'
     _plural_name_ = 'service_excpetions'
     feed_id = Column(Integer, ForeignKey('_feed.feed_id'), primary_key=True)
-    service_id = Column(Unicode, primary_key=True, index=True)
+    service_id = Column(Unicode(length=250), primary_key=True, index=True)
     id = synonym('service_id')
     date = Column(Date, primary_key=True)
     exception_type = Column(Integer)
@@ -333,14 +333,14 @@ class Fare(Base):
     __tablename__ = 'fare_attributes'
     _plural_name_ = 'fares'
     feed_id = Column(Integer, ForeignKey('_feed.feed_id'), primary_key=True)
-    fare_id = Column(Unicode, primary_key=True, index=True)
+    fare_id = Column(Unicode(length=250), primary_key=True, index=True)
     id = synonym('fare_id')
     price = Column(Numeric)
     currency_type = Column(Unicode)
     payment_method = Column(Integer)
     transfers = Column(Integer, nullable=True) # it is required, but allowed to be empty
     transfer_duration = Column(Integer, nullable=True)
-    agency_id = Column(Unicode, nullable=True)
+    agency_id = Column(Unicode(length=250), nullable=True)
 
     _validate_payment_method = _validate_int_choice([0,1], 'payment_method')
     _validate_transfers = _validate_int_choice([None, 0,1,2], 'transfers')
@@ -353,14 +353,14 @@ class FareRule(Base):
     __tablename__ = 'fare_rules'
     _plural_name_ = 'fare_rules'
     feed_id = Column(Integer, ForeignKey('_feed.feed_id'), primary_key=True)
-    fare_id = Column(Unicode, primary_key=True)
-    route_id = Column(Unicode, nullable=True, primary_key=True)
+    fare_id = Column(Unicode(length=250), primary_key=True)
+    route_id = Column(Unicode(length=250), nullable=True, primary_key=True)
 
     # TODO: add a constraint such that, each one of the following attributes
     # must be one of the `stops.zone_id`s
-    origin_id = Column(Unicode, nullable=True, primary_key=True)
-    destination_id = Column(Unicode, nullable=True, primary_key=True)
-    contains_id = Column(Unicode, nullable=True, primary_key=True)
+    origin_id = Column(Unicode(length=250), nullable=True, primary_key=True)
+    destination_id = Column(Unicode(length=250), nullable=True, primary_key=True)
+    contains_id = Column(Unicode(length=250), nullable=True, primary_key=True)
 
     __table_args__ = create_foreign_keys('fare_attributes.fare_id', 'routes.route_id')
 
@@ -376,7 +376,7 @@ class ShapePoint(Base):
     __tablename__ = 'shapes'
     _plural_name_ = 'shapes'
     feed_id = Column(Integer, ForeignKey('_feed.feed_id'))
-    shape_id = Column(Unicode)
+    shape_id = Column(Unicode(length=250))
     shape_pt_lat = Column(Float)
     shape_pt_lon = Column(Float)
     shape_pt_sequence = Column(Integer)
@@ -401,7 +401,7 @@ class Frequency(Base):
     __tablename__ = 'frequencies'
     _plural_name_ = 'frequencies'
     feed_id = Column(Integer, ForeignKey('_feed.feed_id'), primary_key=True)
-    trip_id = Column(Unicode, primary_key=True)
+    trip_id = Column(Unicode(length=250), primary_key=True)
     start_time = Column(Interval, primary_key=True)
     end_time = Column(Interval, primary_key=True)
     headway_secs = Column(Integer)
@@ -420,8 +420,8 @@ class Transfer(Base):
     __tablename__ = 'transfers'
     _plural_name_ = 'transfers'
     feed_id = Column(Integer, ForeignKey('_feed.feed_id'), primary_key=True)
-    from_stop_id = Column(Unicode, primary_key=True)
-    to_stop_id = Column(Unicode, primary_key=True)
+    from_stop_id = Column(Unicode(length=250), primary_key=True)
+    to_stop_id = Column(Unicode(length=250), primary_key=True)
     transfer_type = Column(Integer, nullable=True) # required but empty is allowed
     min_transfer_time = Column(Integer, nullable=True)
 
@@ -445,8 +445,8 @@ class FeedInfo(Base):
     __tablename__ = 'feed_info'
     _plural_name_ = 'feed_infos'
     feed_id = Column(Integer, ForeignKey('_feed.feed_id'), primary_key=True)
-    feed_publisher_name = Column(Unicode, primary_key=True)
-    feed_publisher_url = Column(Unicode, primary_key=True)
+    feed_publisher_name = Column(Unicode(length=250), primary_key=True)
+    feed_publisher_url = Column(Unicode(length=250), primary_key=True)
     feed_lang = Column(Unicode)
     feed_start_date = Column(Date, nullable=True)
     feed_end_date = Column(Date, nullable=True)

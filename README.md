@@ -32,6 +32,12 @@ Dependencies
 - [docopt](http://docopt.org/). Pythonic command line arguments parser, that
   will make you smile
 
+**Optional**
+- [psycopg2](http://initd.org/psycopg/download/) 2.6.1 Only neccessary if connecting
+    to a PostgreSQL DB
+- [pymssql](https://pypi.python.org/pypi/pymssql) 2.1.1 Only neccessary if connecting
+    to a MSSQL Server
+
 Installation
 ------------
 
