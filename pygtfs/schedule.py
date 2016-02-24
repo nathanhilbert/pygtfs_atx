@@ -3,7 +3,15 @@ from __future__ import division, absolute_import, print_function, unicode_litera
 import sqlalchemy
 import sqlalchemy.orm
 
-from .gtfs_entities import gtfs_all, Feed, Base
+import json
+
+try:
+    from pyproj import Proj, transform
+except ImportError:
+    pass
+
+
+from .gtfs_entities import gtfs_all, Feed, Base, ShapePoint
 
 class Schedule:
     """Represents the full database.
@@ -31,9 +39,12 @@ class Schedule:
         if self.db_connection.startswith('sqlite'):
             self.db_filename = self.db_connection
         self.engine = sqlalchemy.create_engine(self.db_connection, echo=False)
+
+
         Session = sqlalchemy.orm.sessionmaker(bind=self.engine)
         self.session = Session()
         Base.metadata.create_all(self.engine) 
+
 
 
     def drop_feed(self, feed_id):
@@ -43,6 +54,50 @@ class Schedule:
         feed = self.session.query(Feed).get(feed_id)
         self.session.delete(feed)
         self.session.commit()
+
+    def trips_to_geojson(self, trips=[], outputobj=True, outputstring=False, output='trips.geojson', projection="EPSG:32614"):
+        #WGS84 LL
+        sourceproj = Proj(init='EPSG:4326')
+        #WGS84 UTM 14N
+        destproj = Proj(init=projection)
+
+        if type(trips) is int:
+            trips = [trips]
+        for trip in trips:
+            if type(trip) is int:
+                print("Error: must be trip objects in array")
+
+        geojsonobj = { "type": "FeatureCollection",
+        "features": [
+           ]
+         }
+
+        for trip in trips:
+            geomfeat = { "type": "Feature",
+                            "geometry": {
+                              "type": "LineString",
+                              "coordinates": [
+                              #   [102.0, 0.0], [103.0, 1.0], [104.0, 0.0], [105.0, 1.0]
+                                 ]
+                              },
+                            "properties": {}
+                            }
+            # get our shapes
+
+            coordseq = self.session.query(ShapePoint)\
+                    .filter(ShapePoint.shape_id==trip.shape_id)\
+                    .order_by(ShapePoint.shape_pt_sequence).all()
+            for coord in coordseq:
+                geomfeat['geometry']['coordinates'].append(\
+                                transform(sourceproj, destproj, coord.shape_pt_lon, coord.shape_pt_lat))
+            geojsonobj['features'].append(geomfeat)
+        if outputobj:
+            return geojsonobj
+        if outputstring:
+            return json.dumps(geojsonobj)
+        else:
+            with open(output, 'wb') as f:
+                json.dump(geojsonobj, f)
 
 def _meta_query_all(entity, docstring=None):
     def _query_all(instance_self):
@@ -60,6 +115,8 @@ def _meta_query_by_id(entity, docstring=None):
     if docstring is not None:
         _query_by_id.__doc__ = docstring
     return _query_by_id
+
+
 
 for entity in (gtfs_all + [Feed]):
     entity_doc = "A list of :py:class:`pygtfs.gtfs_entities.{0}` objects".format(entity.__name__)

@@ -2,7 +2,9 @@
 *.pyc
 build
 dist
+pyenv
 *.egg-info
+.eggs
 data/*
 docs/_build
 .project
