@@ -17,9 +17,9 @@ from sqlalchemy import Column, ForeignKey, ForeignKeyConstraint, Index, and_
 from sqlalchemy.types import Unicode, Integer, Float, Boolean, Date, Interval, PickleType, TypeDecorator, Numeric
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, validates, synonym
+from sqlalchemy.schema import UniqueConstraint, PrimaryKeyConstraint
 
 Base = declarative_base()
-
 
 
 def _validate_date(*field_names):
@@ -222,9 +222,13 @@ class Trip(Base):
     stop_times = relationship("StopTime", backref="trip")
     frequencies = relationship("Frequency", backref="trip")
 
-    # TODO: The service_id references to calendar or to calendar_dates.
-    # Need to implement this requirement, but not using a simple foreign key.
-    __table_args__ = create_foreign_keys('routes.route_id', 'shapes.shape_id')
+    __table_args__ = create_foreign_keys('routes.route_id')#, 'shapes.shape_id')
+
+    # __table_args__ = tuple([ForeignKeyConstraint(["feed_id", "route_id"],\
+    #                                               ["trips.feed_id", "routes.route_id"])])
+
+
+        # create_foreign_keys('routes.route_id', 'shapes.shape_id')
 
     _validate_direction_id = _validate_int_choice([None,0,1], 'direction_id')
     _validate_wheelchair = _validate_int_choice([0,1,2], 'wheelchair_accessible')
@@ -245,7 +249,7 @@ class StopTime(Base):
     stop_headsign = Column(Unicode)
     pickup_type = Column(Integer)
     drop_off_type = Column(Integer)
-    shape_dist_traveled = Column(Integer, nullable=True)
+    shape_dist_traveled = Column(Float, nullable=True)
     atl_stop_id = Column(Integer, nullable=True)
 
     __table_args__ = create_foreign_keys('trips.trip_id', 'stops.stop_id')
@@ -363,14 +367,20 @@ class FareRule(Base):
 class ShapePoint(Base):
     __tablename__ = 'shapes'
     _plural_name_ = 'shapes'
-    feed_id = Column(Integer, ForeignKey('_feed.feed_id'), primary_key=True)
-    shape_id = Column(Unicode, primary_key=True)
+    feed_id = Column(Integer, ForeignKey('_feed.feed_id'))
+    shape_id = Column(Unicode)
     shape_pt_lat = Column(Float)
     shape_pt_lon = Column(Float)
-    shape_pt_sequence = Column(Integer, primary_key=True)
+    shape_pt_sequence = Column(Integer)
     shape_dist_traveled = Column(Float, nullable=True)
 
-    trips = relationship("Trip", backref="shape_points")
+    trips = relationship("Trip", backref="shape_points", primaryjoin="and_(ShapePoint.feed_id==Trip.feed_id, "
+                        "ShapePoint.shape_id==foreign(Trip.shape_id))", viewonly=True)
+
+    __table_args__ = (
+        PrimaryKeyConstraint('feed_id', 'shape_id', 'shape_pt_sequence', name="pk_id_seq"),
+        {},
+    )
 
     _validate_lon_lat = _validate_float_range(-180,180, 'shape_pt_lon', 'shape_pt_lat')
     _validate_shape_dist_traveled = _validate_float_none('shape_dist_traveled')
