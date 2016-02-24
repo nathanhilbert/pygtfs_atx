@@ -78,6 +78,7 @@ def append_feed(schedule, feed_filename, strip_fields=True,
                 for k in recordasdict.keys():
                     if k not in instance_columns:
                         del recordasdict[k]
+                        print("column %s not added, not in schema"%k)
 
                 instance = gtfs_class(feed_id = feed_id, **recordasdict)
             except:

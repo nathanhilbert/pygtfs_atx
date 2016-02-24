@@ -16,7 +16,7 @@ import re
 from sqlalchemy import Column, ForeignKey, ForeignKeyConstraint, Index, and_
 from sqlalchemy.types import Unicode, Integer, Float, Boolean, Date, Interval, PickleType, TypeDecorator, Numeric
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, validates, synonym
+from sqlalchemy.orm import relationship, validates, synonym, foreign
 from sqlalchemy.schema import UniqueConstraint, PrimaryKeyConstraint
 
 Base = declarative_base()
@@ -134,7 +134,8 @@ class Agency(Base):
     agency_phone = Column(Unicode, nullable=True)
     agency_fare_url = Column(Unicode, nullable=True)
 
-    routes = relationship("Route", backref="agency")
+    routes = relationship("Route", backref="agency", primaryjoin="and_(Agency.feed_id==Route.feed_id, "
+                            "Agency.agency_id==foreign(Route.agency_id))")
 
     def __repr__(self):
         return '<Agency %s: %s>' % (self.agency_id, self.agency_name)
@@ -163,7 +164,10 @@ class Stop(Base):
     stop_position = Column(Unicode, nullable=True)
     corner_placement = Column(Unicode, nullable=True)
 
-    stop_times = relationship('StopTime', backref="stop")
+
+
+    stop_times = relationship('StopTime', backref="stop", primaryjoin="and_(Stop.feed_id==StopTime.feed_id, "
+                            "Stop.stop_id==foreign(StopTime.stop_id))")
     transfers_to = relationship('Transfer', backref="stop_to", foreign_keys='Transfer.to_stop_id')
     transfers_from = relationship('Transfer', backref="stop_from", foreign_keys='Transfer.from_stop_id')
 
@@ -192,8 +196,10 @@ class Route(Base):
 
     __table_args__ = create_foreign_keys('agency.agency_id')
 
-    trips = relationship("Trip", backref="route")
-    fare_rules = relationship("FareRule", backref="route")
+    trips = relationship("Trip", backref="route", primaryjoin="and_(Route.feed_id==Trip.feed_id, "
+                            "Route.route_id==foreign(Trip.route_id))")
+    fare_rules = relationship("FareRule", backref="route", primaryjoin="and_(Route.feed_id==FareRule.feed_id, "
+                            "Route.route_id==foreign(FareRule.route_id))")
 
     _validate_route_type = _validate_int_choice(range(8), 'route_type')
 
@@ -219,8 +225,10 @@ class Trip(Base):
     dir_abbr = Column(Unicode, nullable=True)
     orig_trip_id = Column(Unicode)
 
-    stop_times = relationship("StopTime", backref="trip")
-    frequencies = relationship("Frequency", backref="trip")
+    stop_times = relationship("StopTime", backref="trip", primaryjoin="and_(Trip.feed_id==StopTime.feed_id, "
+                            "Trip.trip_id==foreign(StopTime.trip_id))")
+    frequencies = relationship("Frequency", backref="trip", primaryjoin="and_(Trip.feed_id==Frequency.feed_id, "
+                            "Trip.trip_id==foreign(Frequency.trip_id))")
 
     __table_args__ = create_foreign_keys('routes.route_id')#, 'shapes.shape_id')
 
@@ -281,7 +289,7 @@ class Service(Base):
     trips = relationship('Trip',
         backref='service',
         primaryjoin=and_(
-            service_id == Trip.service_id,
+            service_id == foreign(Trip.service_id),
             feed_id == Trip.feed_id,
         ),
         foreign_keys=[Trip.service_id, Trip.feed_id]
