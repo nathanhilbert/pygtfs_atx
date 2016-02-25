@@ -68,7 +68,7 @@ def append_feed(schedule, feed_filename, strip_fields=True,
         if gtfs_class not in gtfs_tables:
             continue
         gtfs_table = gtfs_tables[gtfs_class]
-        instance_columns = vars(gtfs_class).keys()
+        instance_class_vars = vars(gtfs_class)
         for i, record in enumerate(gtfs_table):
             if not record:
                 # Empty row.
@@ -76,9 +76,27 @@ def append_feed(schedule, feed_filename, strip_fields=True,
             try:
                 recordasdict = record._asdict()
                 for k in recordasdict.keys():
-                    if k not in instance_columns:
+                    if k not in instance_class_vars.keys():
                         del recordasdict[k]
                         print("column %s not added, not in schema"%k)
+                    else:
+                        #TO DO: improve this section for speed
+                        column_type = str(instance_class_vars[k].comparator.type)
+                        if column_type.find("VARCHAR") > -1:
+                            try:
+                                recordasdict[k] = unicode(recordasdict[k])
+                            except:
+                                pass
+                        elif column_type.find("INTEGER") > -1: 
+                            try:
+                                recordasdict[k] = int(recordasdict[k])
+                            except:
+                                recordasdict[k] = 0
+                        elif column_type.find("FLOAT") > -1: 
+                            try:
+                                recordasdict[k] = float(recordasdict[k])
+                            except:
+                                recordasdict[k] = 0.0
 
                 instance = gtfs_class(feed_id = feed_id, **recordasdict)
             except:
