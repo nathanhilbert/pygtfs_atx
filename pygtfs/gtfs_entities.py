@@ -254,7 +254,8 @@ class Translation(Base):
     trans_id = Column(Unicode, primary_key=True, index=True)
     lang = Column(Unicode, primary_key=True)
     translation = Column(Unicode)
-    __table_args__ = (ForeignKeyConstraint(["feed_id", 'trans_id'], ["stops.feed_id", "stops.stop_name"]),)
+    
+    __table_args__ = (ForeignKeyConstraint(["feed_id", 'trans_id'], ["stops.feed_id", "stops.stop_id"]),)
 
     def __repr__(self):
         return '<Translation %s (to %s): %s>' % (self.trans_id, self.lang,
