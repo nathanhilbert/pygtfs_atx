@@ -117,6 +117,7 @@ class Feed(Base):
     frequencies = relationship("Frequency", backref=("feed"), cascade="all, delete-orphan")
     transfers = relationship("Transfer", backref=("feed"), cascade="all, delete-orphan")
     feedinfo = relationship("FeedInfo", backref=("feed"), cascade="all, delete-orphan")
+    translations = relationship("Translation", backref=("feed"), cascade="all, delete-orphan")
 
     def __repr__(self):
         return '<Feed %s: %s>' % (self.feed_id, self.feed_name)
@@ -170,6 +171,7 @@ class Stop(Base):
                             "Stop.stop_id==foreign(StopTime.stop_id))")
     transfers_to = relationship('Transfer', backref="stop_to", foreign_keys='Transfer.to_stop_id')
     transfers_from = relationship('Transfer', backref="stop_from", foreign_keys='Transfer.from_stop_id')
+    translations = relationship('Translation', foreign_keys='Translation.trans_id')
 
 
     _validate_location = _validate_int_choice([None,0,1], 'location_type')
@@ -243,6 +245,20 @@ class Trip(Base):
 
     def __repr__(self):
         return '<Trip %s>' % self.trip_id
+
+
+class Translation(Base):
+    __tablename__ = 'translations'
+    _plural_name_ = 'translations'
+    feed_id = Column(Integer, ForeignKey('_feed.feed_id'))
+    trans_id = Column(Unicode, primary_key=True, index=True)
+    lang = Column(Unicode, primary_key=True)
+    translation = Column(Unicode)
+    __table_args__ = (ForeignKeyConstraint(["feed_id", 'trans_id'], ["stops.feed_id", "stops.stop_name"]),)
+
+    def __repr__(self):
+        return '<Translation %s (to %s): %s>' % (self.trans_id, self.lang,
+                                                 self.translation)
 
 
 class StopTime(Base):
@@ -389,7 +405,7 @@ class ShapePoint(Base):
     shape_id = Column(Unicode(length=250))
     shape_pt_lat = Column(Float)
     shape_pt_lon = Column(Float)
-    shape_pt_sequence = Column(Integer)
+    shape_pt_sequence = Column(Integer, primary_key=True) 
     shape_dist_traveled = Column(Float, nullable=True)
 
     trips = relationship("Trip", backref="shape_points", primaryjoin="and_(ShapePoint.feed_id==Trip.feed_id, "
@@ -473,5 +489,6 @@ class FeedInfo(Base):
 
 gtfs_required = [Agency, Stop, Route, Trip, StopTime, ShapePoint]
 gtfs_calendar = [Service, ServiceException]
-gtfs_not_required = [Fare, FareRule, Frequency, Transfer, FeedInfo]
+gtfs_not_required = [Fare, FareRule, ShapePoint, Frequency, Transfer, FeedInfo,
+                     Translation]
 gtfs_all = gtfs_required + gtfs_calendar + gtfs_not_required
