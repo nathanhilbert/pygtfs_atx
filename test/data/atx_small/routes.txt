@@ -1,0 +1,6 @@
+agency_id,route_id,route_short_name,route_long_name,route_desc,route_type,route_url,route_color,route_text_color
+1,20,20,Manor Rd/Riverside,,3,,009CA7,000000
+1,1,1,Metric/South Congress,,3,,009CA7,000000
+1,483,483,Night Owl Riverside,,3,,77777A,000000
+1,323,323,Anderson,,3,,658D3C,000000
+1,228,228,Burleson,,3,,658D3C,000000

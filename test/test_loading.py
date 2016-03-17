@@ -13,7 +13,6 @@ class TestLoadingAbility(GTFSSmallSetup):
         pass
 
     def test_routes( self ):
-        print "doing this"
         self.assertEqual( self.schedule.routes[0].route_id, "20" )
 
     def test_services( self ):

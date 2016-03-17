@@ -329,25 +329,6 @@ class ServiceException(Base):
 
 
 
-class Fare(Base):
-    __tablename__ = 'fare_attributes'
-    _plural_name_ = 'fares'
-    feed_id = Column(Integer, ForeignKey('_feed.feed_id'), primary_key=True)
-    fare_id = Column(Unicode(length=250), primary_key=True, index=True)
-    id = synonym('fare_id')
-    price = Column(Numeric)
-    currency_type = Column(Unicode)
-    payment_method = Column(Integer)
-    transfers = Column(Integer, nullable=True) # it is required, but allowed to be empty
-    transfer_duration = Column(Integer, nullable=True)
-    agency_id = Column(Unicode(length=250), nullable=True)
-
-    _validate_payment_method = _validate_int_choice([0,1], 'payment_method')
-    _validate_transfers = _validate_int_choice([None, 0,1,2], 'transfers')
-
-    def __repr__(self):
-        return '<Fare %s>' % self.fare_id
-
 
 class FareRule(Base):
     __tablename__ = 'fare_rules'
@@ -371,6 +352,35 @@ class FareRule(Base):
                                                self.destination_id,
                                                self.contains_id)
 
+
+class Fare(Base):
+    __tablename__ = 'fare_attributes'
+    _plural_name_ = 'fares'
+    feed_id = Column(Integer, ForeignKey('_feed.feed_id'), primary_key=True)
+    fare_id = Column(Unicode(length=250), primary_key=True, index=True)
+    id = synonym('fare_id')
+    price = Column(Numeric)
+    currency_type = Column(Unicode)
+    payment_method = Column(Integer)
+    transfers = Column(Integer, nullable=True) # it is required, but allowed to be empty
+    transfer_duration = Column(Integer, nullable=True)
+    agency_id = Column(Unicode(length=250), nullable=True)
+
+    fare_rules = relationship('FareRule',
+        backref='fares',
+        primaryjoin=and_(
+            fare_id == foreign(FareRule.fare_id),
+            feed_id == FareRule.feed_id,
+        ),
+        foreign_keys=[FareRule.fare_id, FareRule.feed_id]
+    )
+
+    _validate_payment_method = _validate_int_choice([0,1], 'payment_method')
+    _validate_transfers = _validate_int_choice([None, 0,1,2], 'transfers')
+
+    def __repr__(self):
+        return '<Fare %s>' % self.fare_id
+        
 
 class ShapePoint(Base):
     __tablename__ = 'shapes'
