@@ -48,6 +48,10 @@ Documentation
 -------------
 Hosted on https://pygtfs.readthedocs.org/
 
+Testing
+-------------
+$ nosetests
+
 TODO
 -----
 

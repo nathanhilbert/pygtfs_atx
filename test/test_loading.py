@@ -1,6 +1,6 @@
 from pygtfs import Schedule
 from pygtfs import append_feed, delete_feed, overwrite_feed, list_feeds
-from .base import GTFSSetup
+from .base import GTFSSmallSetup
 
 
 
@@ -13,14 +13,14 @@ class TestLoadingAbility(GTFSSmallSetup):
         pass
 
     def test_routes( self ):
-        self.assertEqual( self.schedule.routes[0].route_id, "20" )
+        assert self.schedule.routes[0].route_id == "17"
 
     def test_services( self ):
-        assert "4985f2fd-e65f-401a-be65-ed8bd2a9acdd" in self.schedule.services
+        assert "105-23501" in str(self.schedule.services)
 
     def test_stops( self ):
-        assert "3281" in self.schedule.stops
-        assert len(self.schedule.stops) == 409
+        assert "1829" in str(self.schedule.stops)
+        assert len(self.schedule.stops) == 73
 
 
         # def test_route_trips( self ):

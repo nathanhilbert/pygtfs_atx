@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """GTFS entities.
 
 These are the entities returned by the various :py:mod:`pygtfs.schedule` lists.
@@ -154,8 +155,8 @@ class Stop(Base):
     stop_lon = Column(Float)
     zone_id = Column(Unicode, nullable=True)
     stop_url = Column(Unicode, nullable=True)
-    location_type = Column(Integer, nullable=True)
-    parent_station = Column(Integer, nullable=True)
+    location_type = Column(Unicode(length=250), nullable=True)
+    parent_station = Column(Unicode(length=250), nullable=True)
     stop_timezone = Column(Unicode, nullable=True)
     wheelchair_boarding = Column(Integer, nullable=True)
     platform_code = Column(Unicode, nullable=True)
@@ -406,7 +407,7 @@ class ShapePoint(Base):
     shape_id = Column(Unicode(length=250))
     shape_pt_lat = Column(Float)
     shape_pt_lon = Column(Float)
-    shape_pt_sequence = Column(Integer, primary_key=True) 
+    shape_pt_sequence = Column(Integer) 
     shape_dist_traveled = Column(Float, nullable=True)
 
     trips = relationship("Trip", backref="shape_points", primaryjoin="and_(ShapePoint.feed_id==Trip.feed_id, "

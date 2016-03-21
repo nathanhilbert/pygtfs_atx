@@ -1,6 +1,7 @@
-service_id,monday,tuesday,wednesday,thursday,friday,saturday,sunday,start_date,end_date
-4985f2fd-e65f-401a-be65-ed8bd2a9acdd,0,0,0,0,0,0,0,20160217,20170224
-b4afcf0b-86d4-4d3d-9a3e-25930f03d6ee,0,0,0,0,0,0,0,20160217,20170224
-fbe98400-ed92-4fcb-a847-14a20706ad60,0,0,0,0,0,0,0,20160217,20170224
-5e2ab026-5c39-4838-9265-0ff42fcb53a2,0,0,0,0,0,0,0,20160217,20170224
-ccdaf21e-6385-434d-98ba-e245d1eeea88,0,0,0,0,0,0,0,20160217,20170224
+service_id,monday,tuesday,wednesday,thursday,friday,saturday,sunday,start_date,end_date,service_name
+105-15601,0,0,0,0,0,0,0,20160311,20160318,Special Event Extra Service
+105-15604,0,0,0,0,0,0,0,20160312,20160319,Special Event Extra Service
+105-15605,0,0,0,0,0,0,0,20160313,20160313,Special Event Extra Service
+105-23501,0,0,0,0,0,0,0,20160111,20160603,Regular Weekday
+105-23804,0,0,0,0,0,0,0,20160116,20160604,Regular Saturday
+105-24105,0,0,0,0,0,0,0,20160110,20160529,Regular Sunday

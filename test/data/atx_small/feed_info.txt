@@ -1,2 +1,2 @@
 feed_publisher_name,feed_publisher_url,feed_lang,feed_start_date,feed_end_date,feed_version,sign_id
-CapMetro,http://www.capmetro.org,en,20160110,20160604,Jan_20160205114011,105
+CapMetro,http://www.capmetro.org,en,20160110,20160604,Jan_20160317150919,105
